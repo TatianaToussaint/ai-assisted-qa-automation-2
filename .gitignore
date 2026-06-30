@@ -1,9 +1,6 @@
 
 # Playwright
 node_modules/
-
-# Prompt template (Block 2 reference — not a homework deliverable)
-test_template.md
 /test-results/
 /playwright-report/
 /blob-report/
