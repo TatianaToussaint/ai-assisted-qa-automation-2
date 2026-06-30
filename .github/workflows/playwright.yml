@@ -8,6 +8,10 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    env:
+      DIDAXIS_URL: ${{ secrets.DIDAXIS_URL }}
+      DIDAXIS_EMAIL: ${{ secrets.DIDAXIS_EMAIL }}
+      DIDAXIS_PASSWORD: ${{ secrets.DIDAXIS_PASSWORD }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
