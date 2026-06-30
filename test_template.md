@@ -1,4 +1,4 @@
-<# Prompt Template "Test Plan" from a Jira Ticket
+# Prompt Template Test Plan
 
 ## Role
 
@@ -6,11 +6,15 @@ You are a senior QA engineer reviewing the feature described below.
 
 ## Task
 
-Create a detailed test plan for the [FEATURE NAME] feature.
+Create a detailed test plan for the  https://demo.playwright.dev/todomvc/#/.
 
 ## Acceptance Criteria
 
-[Paste from Jira]
+User can add a todo item to the list
+User can complete an item 
+User can delete item from the list
+
+
 
 ## Requirements for the test plan
 
@@ -46,4 +50,6 @@ Create a detailed test plan for the [FEATURE NAME] feature.
 
 - Use real field names and values, not placeholders
 
-- At the end: list any ambiguities or gaps in the ACs>
+- At the end: list any ambiguities or gaps in the ACs
+
+-Save it in the TODO_MVC/ folder
