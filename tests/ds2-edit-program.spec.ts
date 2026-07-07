@@ -1,3 +1,8 @@
+/**
+ * DS-2: Edit existing program details
+ * Test plan: Test Cases/DS-2/DS-2_output.md
+ * Target app: DIDAXIS_URL (Didaxis)
+ */
 import { test, expect } from '@playwright/test';
 import {
   loginAsAdmin,
@@ -33,11 +38,14 @@ test.describe('Positive Flows', () => {
 
     await openEditFormForProgram(page, name);
 
+    await expect(editDialog(page)).toBeVisible();
+
     await expect(programNameField(page)).toHaveValue(name);
     await expect(descriptionField(page)).toHaveValue(description);
     await expect(saveButton(page)).toBeVisible();
     await expect(saveButton(page)).toBeEnabled();
     await expect(cancelButton(page)).toBeVisible();
+    await expect(editDialog(page).getByRole('banner').getByRole('button')).toBeVisible();
   });
 
   test('TC-DS2-002: successfully rename a program', async ({ page }) => {
@@ -129,8 +137,8 @@ test.describe('Negative Flows', () => {
     // Requires non-admin credentials not available in .env
   });
 
-  test('TC-DS2-010: rename to existing program name behavior', async ({ page }) => {
-    // App allows duplicate names on edit rather than showing an error (observed behavior)
+  test('TC-DS2-010: rename to existing program name is allowed on edit', async ({ page }) => {
+    // Observed: app allows duplicate names on edit (diverges from DS-3 create rules)
     const programA = await seedProgram(page, 'Web Development 2026', 'desc a');
     const programB = await seedProgram(page, 'Cybersecurity 2026', 'desc b');
 
@@ -156,7 +164,7 @@ test.describe('Negative Flows', () => {
     await expect(programRow(page, updatedName)).toHaveCount(0);
   });
 
-  test('TC-DS2-012: rename to case variant of existing program name', async ({ page }) => {
+  test('TC-DS2-012: rename to case variant of existing name is allowed', async ({ page }) => {
     const webProgram = await seedProgram(page, 'Web Development 2026', 'web desc');
     const dataProgram = await seedProgram(page, 'Data Science 2026', 'data desc');
 
@@ -184,7 +192,7 @@ test.describe('Edge Cases', () => {
     await expect(programRow(page, maxName).first()).toBeVisible();
   });
 
-  test('TC-DS2-014: program name exceeding typical max length on edit', async ({ page }) => {
+  test('TC-DS2-014: program name exceeding 255 characters is accepted on edit', async ({ page }) => {
     const program = await seedProgram(page, 'Boundary Edit Test', 'boundary');
     const overMaxName = 'B'.repeat(256);
 
@@ -214,7 +222,7 @@ test.describe('Edge Cases', () => {
     await expect(programRow(page, program.name)).toBeVisible();
   });
 
-  test('TC-DS2-016: leading and trailing whitespace in program name on save', async ({ page }) => {
+  test('TC-DS2-016: leading and trailing whitespace preserved in program name on save', async ({ page }) => {
     const program = await seedProgram(page, 'Web Development 2026', 'Full-stack web development program');
     const trimmedName = uniqueProgramName('Mobile Development 2026');
     const paddedName = `  ${trimmedName}  `;
@@ -239,7 +247,7 @@ test.describe('Edge Cases', () => {
     await expect(programRow(page, unicodeName)).toBeVisible();
   });
 
-  test('TC-DS2-018: edit non-existent or deleted program', async ({ page }) => {
+  test('TC-DS2-018: no edit action for non-existent program', async ({ page }) => {
     const nonExistent = uniqueProgramName('Deleted Program Test');
     await expect(editProgramButton(page, nonExistent)).toHaveCount(0);
     await expect(programRow(page, nonExistent)).toHaveCount(0);

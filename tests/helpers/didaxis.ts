@@ -38,6 +38,7 @@ export function programRow(page: Page, programName: string) {
   });
 }
 
+/** Row action that opens the Edit Program modal. Accessible name: "Edit {programName}". */
 export function editProgramButton(page: Page, programName: string) {
   return page.getByRole('button', { name: `Edit ${programName}` });
 }
@@ -47,6 +48,7 @@ export async function openNewProgramForm(page: Page): Promise<void> {
   await expect(page.getByRole('dialog', { name: 'New Program' })).toBeVisible();
 }
 
+/** Clicks Edit {programName} and waits for the Edit Program modal. */
 export async function openEditFormForProgram(page: Page, programName: string): Promise<void> {
   await editProgramButton(page, programName).click();
   await expect(page.getByRole('dialog', { name: 'Edit Program' })).toBeVisible();
@@ -89,16 +91,19 @@ export async function deleteProgram(page: Page, programName: string): Promise<vo
   await expect(programRow(page, programName)).toBeHidden({ timeout: 10000 });
 }
 
+/** Clicks Save and waits for the Edit Program modal to close (up to 10s). */
 export async function saveEditForm(page: Page): Promise<void> {
   await editDialog(page).getByRole('button', { name: 'Save' }).click();
   await expect(editDialog(page)).toBeHidden({ timeout: 10000 });
 }
 
+/** Clicks Cancel and waits for the Edit Program modal to close. */
 export async function cancelEditForm(page: Page): Promise<void> {
   await editDialog(page).getByRole('button', { name: 'Cancel' }).click();
   await expect(editDialog(page)).toBeHidden({ timeout: 10000 });
 }
 
+/** Clicks the X button in the dialog banner and waits for the modal to close. */
 export async function closeEditFormViaX(page: Page): Promise<void> {
   await editDialog(page).getByRole('banner').getByRole('button').click();
   await expect(editDialog(page)).toBeHidden({ timeout: 10000 });
@@ -112,6 +117,7 @@ export function cancelButton(page: Page) {
   return editDialog(page).getByRole('button', { name: 'Cancel' });
 }
 
+/** Reads the second <p> in the program row. Returns '' when description was cleared on edit. */
 export async function getProgramDescriptionInList(page: Page, programName: string): Promise<string> {
   const row = programRow(page, programName);
   const paragraphs = row.locator('p');
@@ -125,6 +131,7 @@ export async function countProgramsNamed(page: Page, programName: string): Promi
   return programRow(page, programName).count();
 }
 
+/** Creates a program via + New Program with a timestamp-suffixed name to avoid cross-run collisions. */
 export async function seedProgram(
   page: Page,
   baseName: string,
