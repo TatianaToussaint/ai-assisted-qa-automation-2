@@ -83,12 +83,32 @@ export async function createProgram(
   await expect(programRow(page, name)).toBeVisible();
 }
 
+/** Row action icon button. Accessible name: "Delete {programName}". */
+export function deleteProgramButton(page: Page, programName: string) {
+  return page.getByRole('button', { name: `Delete ${programName}` });
+}
+
+export function createButton(page: Page) {
+  return newProgramDialog(page).getByRole('button', { name: 'Create' });
+}
+
+/** Clicks Delete and accepts the native browser confirm dialog. */
 export async function deleteProgram(page: Page, programName: string): Promise<void> {
-  await page.getByRole('button', { name: `Delete ${programName}` }).click();
-  const confirmDialog = page.getByRole('dialog').last();
-  await expect(confirmDialog).toBeVisible({ timeout: 5000 });
-  await confirmDialog.getByRole('button', { name: /delete/i }).click();
-  await expect(programRow(page, programName)).toBeHidden({ timeout: 10000 });
+  page.once('dialog', (dialog) => dialog.accept());
+  await deleteProgramButton(page, programName).click();
+  await expect(programRow(page, programName)).toHaveCount(0, { timeout: 10000 });
+}
+
+/** Clicks Delete and dismisses the native confirm. Returns the dialog message. */
+export async function cancelDeleteProgram(page: Page, programName: string): Promise<string> {
+  let message = '';
+  page.once('dialog', (dialog) => {
+    message = dialog.message();
+    void dialog.dismiss();
+  });
+  await deleteProgramButton(page, programName).click();
+  await expect(programRow(page, programName)).toBeVisible();
+  return message;
 }
 
 /** Clicks Save and waits for the Edit Program modal to close (up to 10s). */
