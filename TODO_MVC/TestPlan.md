@@ -2,7 +2,10 @@
 
 **Feature:** TodoMVC — add, complete, and delete todo items  
 **Application URL:** https://demo.playwright.dev/todomvc/#/  
-**Reference:** Acceptance criteria from feature ticket
+**Acceptance Criteria:**
+- User can add a todo item to the list
+- User can complete an item
+- User can delete item from the list
 
 ---
 
@@ -15,7 +18,7 @@
 | **Priority** | High |
 
 **Preconditions:**
-- Browser is open at https://demo.playwright.dev/todomvc/#/ (or navigated fresh with an empty todo list).
+- Browser is open at https://demo.playwright.dev/todomvc/#/ with an empty todo list.
 - The **What needs to be done?** input field is visible under the **todos** heading.
 
 **Steps:**
@@ -59,7 +62,7 @@ And the footer displays "3 items left"
 
 **Expected result:**
 - All three todos appear in the order they were entered.
-- Each item has a toggle checkbox and is marked incomplete by default.
+- Each item has a **Toggle Todo** checkbox and is marked incomplete by default.
 - Footer counter shows **3 items left**.
 
 **AC mapping:** User can add a todo item to the list
@@ -79,8 +82,8 @@ And the footer displays "3 items left"
 **Steps:**
 ```gherkin
 Given the todo list contains "Write test plan" as an incomplete item
-When I click the toggle checkbox next to "Write test plan"
-Then "Write test plan" is displayed with completed styling (e.g., strikethrough)
+When I click the "Toggle Todo" checkbox next to "Write test plan"
+Then "Write test plan" is displayed with completed styling
 And the footer displays "0 items left"
 And the "Clear completed" button is visible
 ```
@@ -106,7 +109,7 @@ And the "Clear completed" button is visible
 **Steps:**
 ```gherkin
 Given "Review pull request" is marked completed
-When I click the toggle checkbox next to "Review pull request" again
+When I click the "Toggle Todo" checkbox next to "Review pull request" again
 Then "Review pull request" is displayed as an active (incomplete) item without strikethrough
 And the footer displays "1 item left"
 ```
@@ -133,7 +136,7 @@ And the footer displays "1 item left"
 ```gherkin
 Given the todo list contains "Schedule team meeting" and "Send status update"
 When I hover over "Schedule team meeting"
-And I click the destroy (×) button for that item
+And I click the "Delete" button for that item
 Then "Schedule team meeting" is no longer visible in the todo list
 And "Send status update" remains in the list
 And the footer displays "1 item left"
@@ -159,7 +162,7 @@ And the footer displays "1 item left"
 **Steps:**
 ```gherkin
 Given "Archive old emails" is marked completed
-When I click the destroy (×) button for "Archive old emails"
+When I click the "Delete" button for "Archive old emails"
 Then "Archive old emails" is removed from the todo list
 And the todo list section is hidden or empty
 And the footer is not displayed
@@ -270,7 +273,7 @@ And the input field is cleared or retains no persisted todo
 **Steps:**
 ```gherkin
 Given the todo list contains "Item A", "Item B", and "Item C"
-When I delete "Item B" using its destroy (×) button
+When I delete "Item B" using its "Delete" button
 Then "Item A" and "Item C" remain in the list
 And "Item B" is not present anywhere in the list
 And the footer displays "2 items left"
@@ -411,7 +414,7 @@ And I can toggle the item complete and delete it successfully
 ```
 
 **Expected result:**
-- Long input is accepted (no client-side max-length block observed on demo).
+- Long input is accepted (no client-side max-length block on the demo).
 - Item remains functional for complete and delete actions.
 - Layout may wrap or overflow visually but text is not silently truncated on add.
 
@@ -443,7 +446,7 @@ And the footer displays "1 item left"
 
 ---
 
-### TC-017 — Leading and trailing spaces are preserved or trimmed consistently
+### TC-017 — Leading and trailing spaces are trimmed on add
 
 | Field | Value |
 |-------|-------|
@@ -456,14 +459,14 @@ And the footer displays "1 item left"
 ```gherkin
 Given the todo list is empty
 When I add a todo "  Trim test  "
-Then the todo list shows either "  Trim test  " with spaces preserved
-Or "Trim test" with leading and trailing spaces trimmed
-And the displayed label behavior is consistent on complete and after page reload
+Then the todo list shows "Trim test" without leading or trailing spaces
+And the trimmed label persists after I complete the item
+And the trimmed label and completed state persist after page reload
 ```
 
 **Expected result:**
-- Application applies one consistent rule (preserve or trim); behavior is documented after execution.
-- No duplicate empty-looking rows are created.
+- Leading and trailing whitespace is trimmed before the todo is saved.
+- Trimmed text is used consistently for display, toggle, and persistence.
 
 **AC mapping:** Extension — whitespace boundary on non-empty input
 
@@ -518,7 +521,7 @@ Then the todo list is empty
 ```
 
 **Expected result:**
-- Demo app persists todos (typically via `localStorage`) across reloads.
+- Demo app persists todos via `localStorage` across reloads.
 - Deleted state also persists after reload.
 
 **AC mapping:** Extension — persistence behavior (not stated in ACs)
@@ -553,9 +556,9 @@ And I can complete and delete the item without character loss
 
 1. **Empty and whitespace input:** ACs do not specify whether pressing Enter on empty or whitespace-only input should be ignored; standard TodoMVC behavior is to reject it (covered in TC-008, TC-009).
 
-2. **Duplicate titles:** No requirement states whether two todos with identical text should merge or remain separate; demo TodoMVC allows duplicates (TC-013).
+2. **Duplicate titles:** No requirement states whether two todos with identical text should merge or remain separate; the Playwright demo allows duplicates (TC-013).
 
-3. **Complete vs. delete interaction:** ACs do not define whether completed items must remain deletable individually, via **Clear completed**, or both; demo supports both paths (TC-006, TC-007).
+3. **Complete vs. delete interaction:** ACs do not define whether completed items must remain deletable individually, via **Clear completed**, or both; the demo supports both paths (TC-006, TC-007).
 
 4. **Persistence:** ACs do not mention whether todos survive page refresh; the Playwright demo persists to `localStorage` (TC-019).
 
@@ -563,10 +566,10 @@ And I can complete and delete the item without character loss
 
 6. **Edit-in-place:** Classic TodoMVC supports double-click to edit an item; ACs do not include edit/update behavior — out of scope unless added to ACs.
 
-7. **Leading/trailing whitespace:** ACs do not specify trim rules for todo text (TC-017); execute once and document actual behavior.
+7. **Leading/trailing whitespace:** ACs do not specify trim rules; the demo trims leading and trailing spaces on add (TC-017).
 
-8. **Maximum text length:** No AC defines an upper bound; demo appears to accept very long strings (TC-015); confirm if a product limit exists elsewhere.
+8. **Maximum text length:** No AC defines an upper bound; the demo accepts very long strings (TC-015); confirm if a product limit exists elsewhere.
 
 9. **Accessibility / keyboard-only flows:** ACs imply mouse interactions only; keyboard Enter-to-add and toggle focus order are not specified.
 
-10. **URL typo resilience:** Test preconditions should use the canonical URL `https://demo.playwright.dev/todomvc/#/` (template task line contained the demo link without explicit trailing hash route behavior).
+10. **Demo vs. production:** The page states this is a demo for testing, not the real TodoMVC app; behavior may differ from other TodoMVC implementations.

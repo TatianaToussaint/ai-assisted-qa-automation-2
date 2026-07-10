@@ -1,6 +1,6 @@
 import { test, expect, Page } from '@playwright/test';
 
-const TODO_URL = 'https://demo.playwright.dev/todomvc/';
+const TODO_URL = 'https://demo.playwright.dev/todomvc/#/';
 
 async function openEmptyTodoPage(page: Page): Promise<void> {
   await page.goto(TODO_URL);
@@ -74,7 +74,9 @@ test.describe('Positive Flows', () => {
 
     await completeTodo(page, 'Write test plan');
 
+    const item = todoItem(page, 'Write test plan');
     await expect(todoCheckbox(page, 'Write test plan')).toBeChecked();
+    await expect(item).toHaveClass(/completed/);
     await expect(page.getByText('0 items left')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Clear completed' })).toBeVisible();
   });
@@ -85,7 +87,9 @@ test.describe('Positive Flows', () => {
 
     await todoCheckbox(page, 'Review pull request').uncheck();
 
+    const item = todoItem(page, 'Review pull request');
     await expect(todoCheckbox(page, 'Review pull request')).not.toBeChecked();
+    await expect(item).not.toHaveClass(/completed/);
     await expect(page.getByText('1 item left')).toBeVisible();
   });
 
@@ -151,6 +155,7 @@ test.describe('Negative Flows', () => {
     await input.press('Enter');
 
     await expect(page.getByRole('checkbox', { name: 'Toggle Todo' })).toHaveCount(0);
+    await expect(todoListItems(page)).toHaveCount(0);
   });
 
   test('TC-010: delete control on one item does not remove other items', async ({ page }) => {
@@ -246,10 +251,11 @@ test.describe('Edge Cases', () => {
     await expect(page.getByText('1 item left')).toBeVisible();
   });
 
-  test('TC-017: leading and trailing spaces are trimmed consistently', async ({ page }) => {
+  test('TC-017: leading and trailing spaces are trimmed on add', async ({ page }) => {
     await addTodo(page, '  Trim test  ');
 
     await expect(page.getByText('Trim test')).toBeVisible();
+    await expect(todoListItems(page)).toHaveCount(1);
 
     await completeTodo(page, 'Trim test');
     await expect(todoCheckbox(page, 'Trim test')).toBeChecked();
