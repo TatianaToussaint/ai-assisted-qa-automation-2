@@ -28,6 +28,9 @@ export default defineConfig({
   use: {
     baseURL: process.env.DIDAXIS_URL,
 
+    /* Capture screenshot on failure for jira-bug-reporter evidence */
+    screenshot: 'only-on-failure',
+
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },

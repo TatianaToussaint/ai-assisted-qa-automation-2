@@ -9,7 +9,9 @@
     "test:headed": "playwright test --headed",
     "test:report": "playwright show-report",
     "mcp:install-browser": "node tests/scripts/install-mcp-browser.mjs",
-    "mcp:verify-browser": "node tests/scripts/verify-mcp-browser.mjs"
+    "mcp:verify-browser": "node tests/scripts/verify-mcp-browser.mjs",
+    "bug:collect-screenshots": "node scripts/collect-failure-screenshots.mjs --latest",
+    "bug:attach": "node scripts/jira-attach-screenshots.mjs"
   },
   "keywords": [],
   "author": "",

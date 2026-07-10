@@ -1,0 +1,19 @@
+---
+description: After Playwright test failures, use jira-bug-reporter skill to file Jira sub-tasks with screenshots
+globs: tests/**/*.spec.ts,block-05/tests/**/*.spec.ts
+alwaysApply: true
+---
+
+# Playwright failure → Jira bug reporter
+
+When Playwright tests fail (local run, CI output, or user pastes failure):
+
+1. Use the **jira-bug-reporter** skill — do not fix tests unless the user asks.
+2. Re-run the failing test: `npx playwright test <spec> -g "<title>" --workers=1`
+3. Collect evidence: `node scripts/collect-failure-screenshots.mjs --latest`
+4. Search Jira for duplicate sub-tasks under the parent story before creating a new one.
+5. Create a **Sub-task** with summary `[Composer] <defect>` linked to the parent (DS-N from `test.describe` or `features/DS-N.feature`).
+6. Attach screenshots: `node scripts/jira-attach-screenshots.mjs <ISSUE-KEY> $(node scripts/collect-failure-screenshots.mjs --latest)`
+7. Return issue key, Jira URL, and confirm upload exited 0.
+
+Skip bug filing for setup failures (missing `.env`, browser not installed) unless the user requests it.
