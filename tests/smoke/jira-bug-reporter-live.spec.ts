@@ -23,6 +23,8 @@ test.describe('DS-2: Edit existing program details', () => {
   });
 
   test('SKILL-SMOKE: duplicate rename on edit should be rejected per DS-3', async ({ page }) => {
+    test.skip(!!process.env.CI, 'Intentional local failure for jira-bug-reporter skill demo — skipped in CI');
+
     const programA = await seedProgram(page, 'Web Development 2026', 'desc a');
     const programB = await seedProgram(page, 'Cybersecurity 2026', 'desc b');
 
