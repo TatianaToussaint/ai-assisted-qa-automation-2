@@ -1,55 +1,63 @@
-# Prompt Template Test Plan
+# Prompt Template — Playwright Tests
 
 ## Role
 
-You are a senior QA engineer reviewing the feature described below.
+You are a senior QA automation engineer writing Playwright tests for Didaxis Studio.
 
 ## Task
 
-Create a detailed test plan for the  https://demo.playwright.dev/todomvc/#/.
+Write Playwright tests for creating a new program on Didaxis Studio.
 
-## Acceptance Criteria
+## App context (from manual inspection)
 
-User can add a todo item to the list
-User can complete an item 
-User can delete item from the list
+- Login page: [https://test.didaxis.studio/login](https://test.didaxis.studio/login)
+  - Email field: `getByLabel('Email')`
+  - Password field: `getByLabel('Password')`
+  - Sign In button: `getByRole('button', { name: 'Sign In' })`
 
+- Programs page: `/programs`
+  - "+ New Program" button: `getByRole('button', { name: '+ New Program' })`
+  - Modal form:
+    - Program Name: `getByLabel('Program Name')`
+    - Description: `getByLabel('Description')`
+    - Create button: `getByRole('button', { name: 'Create' })`
 
+## Credentials
 
-## Requirements for the test plan
+Use dotenv. Read email and password from `process.env`:
 
-- All test cases must be in Gherkin
+- `process.env.DIDAXIS_EMAIL`
+- `process.env.DIDAXIS_PASSWORD`
 
-- Cover every AC with at least one test case
+Do NOT hardcode credentials in the test file.
 
-- Add edge cases the ACs don't mention
+## Test plan
 
-  (boundary values, empty inputs, special characters, duplicates, max-length)
+Test cases are sourced from **Test Cases/DS-1/DS-1_output.md** (Block 2 — Create New Academic Program). Please consult that file for detailed, structured Gherkin steps and expected results for each scenario.
 
-- Add negative test cases (what should NOT happen)
+### Acceptance Criteria Coverage
 
-- Structure each test case as:
+| AC Scenario | Test Case(s) |
+|-------------|--------------|
+| Navigate to program creation form | TC-DS1-001 |
+| Successfully create a program | TC-DS1-002 |
+| Validation prevents empty program name | TC-DS1-006, TC-DS1-010 |
 
-  - ID (TC-001, TC-002, etc.)
+### Test cases to automate (priority)
 
-  - Title (expected behavior, not action)
+**Positive flows:** TC-DS1-001, TC-DS1-002, TC-DS1-003, TC-DS1-004, TC-DS1-005
 
-  - Preconditions
+**Negative flows:** TC-DS1-006, TC-DS1-009, TC-DS1-010
 
-  - Steps (numbered)
+**Edge cases:** TC-DS1-011, TC-DS1-015, TC-DS1-017
 
-  - Expected result
+**Out of scope for automation (missing preconditions):** TC-DS1-008 (non-admin credentials), TC-DS1-018 (empty program list)
 
-  - Priority (High / Medium / Low)
+## Requirements
 
-- Group by: Positive flows, Negative flows, Edge cases
-
-## Output
-
-- Structured test plan in Markdown
-
-- Use real field names and values, not placeholders
-
-- At the end: list any ambiguities or gaps in the ACs
-
--Save it in the TODO_MVC/ folder
+- TypeScript
+- Use Playwright locators (`getByRole`, `getByLabel`, `getByText`)
+- Login as the first step in each test (or use `beforeEach`)
+- Each test is independent
+- Use unique test data with `Date.now()` suffix
+- Save as `tests/ds1-create-program.spec.ts`
