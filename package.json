@@ -11,7 +11,8 @@
     "mcp:install-browser": "node tests/scripts/install-mcp-browser.mjs",
     "mcp:verify-browser": "node tests/scripts/verify-mcp-browser.mjs",
     "bug:collect-screenshots": "node scripts/collect-failure-screenshots.mjs --latest",
-    "bug:attach": "node scripts/jira-attach-screenshots.mjs"
+    "bug:attach": "node scripts/jira-attach-screenshots.mjs",
+    "didaxis:delete-all-programs": "node scripts/delete-all-didaxis-programs.mjs"
   },
   "keywords": [],
   "author": "",

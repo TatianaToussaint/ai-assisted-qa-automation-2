@@ -2,8 +2,14 @@
  * DS-1: Create new academic program
  * Test plan: Test Cases/DS-1/DS-1_output.md
  */
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page, trackProgramsByExactName } from '../fixtures/cleanup.fixture';
 import { programRow, countProgramsNamed } from './helpers/didaxis';
+import {
+  createProgram,
+  openNewProgramModal,
+  submitCreateAndTrack,
+  trackMultipleCreatesOnSubmit,
+} from './helpers/program-create';
 
 const PROGRAM_NAME_MAX = 255;
 const DESCRIPTION_MAX = 1000;
@@ -33,24 +39,6 @@ async function goToPrograms(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { name: 'Programs', level: 2 })).toBeVisible();
 }
 
-async function openNewProgramModal(page: Page) {
-  await page.getByRole('button', { name: '+ New Program' }).click();
-  const dialog = page.getByRole('dialog', { name: 'New Program' });
-  await expect(dialog).toBeVisible();
-  return dialog;
-}
-
-async function createProgram(page: Page, name: string, description: string): Promise<void> {
-  const dialog = await openNewProgramModal(page);
-  await dialog.getByLabel('Program Name').fill(name);
-  if (description) {
-    await dialog.getByLabel('Description').fill(description);
-  }
-  await dialog.getByRole('button', { name: 'Create' }).click();
-  await expect(dialog).toBeHidden({ timeout: 10000 });
-  await expect(programRow(page, name)).toBeVisible();
-}
-
 test.beforeEach(async ({ page }) => {
   await login(page);
   await goToPrograms(page);
@@ -66,31 +54,44 @@ test.describe('Positive Flows', () => {
     await expect(dialog.getByRole('button', { name: 'Cancel' })).toBeVisible();
   });
 
-  test('TC-DS1-002: successfully create a program with name and description', async ({ page }) => {
+  test('TC-DS1-002: successfully create a program with name and description', async ({
+    page,
+    trackProgram,
+  }) => {
     const programName = uniqueName('Web Development 2026');
     const description = `Full-stack web development program ${Date.now()}`;
 
-    await createProgram(page, programName, description);
+    await createProgram(page, trackProgram, programName, description);
     await expect(page.getByText(description)).toBeVisible();
   });
 
-  test('TC-DS1-003: create program with name only and empty description', async ({ page }) => {
+  test('TC-DS1-003: create program with name only and empty description', async ({
+    page,
+    trackProgram,
+  }) => {
     const programName = uniqueName('Data Science Fundamentals');
-    await createProgram(page, programName, '');
+    await createProgram(page, trackProgram, programName, '');
   });
 
-  test('TC-DS1-004: create program with special characters in name', async ({ page }) => {
+  test('TC-DS1-004: create program with special characters in name', async ({
+    page,
+    trackProgram,
+  }) => {
     const programName = uniqueName('Informatique & IA - Niveau 2');
     await createProgram(
       page,
+      trackProgram,
       programName,
       'Programme bilingue en informatique et intelligence artificielle',
     );
   });
 
-  test('TC-DS1-005: program list refreshes after successful create', async ({ page }) => {
+  test('TC-DS1-005: program list refreshes after successful create', async ({
+    page,
+    trackProgram,
+  }) => {
     const programName = uniqueName('Cloud Engineering 2026');
-    await createProgram(page, programName, 'AWS and Azure cloud engineering track');
+    await createProgram(page, trackProgram, programName, 'AWS and Azure cloud engineering track');
     await expect(page).toHaveURL(/\/programs/);
   });
 });
@@ -101,14 +102,19 @@ test.describe('Negative Flows', () => {
     await expect(dialog.getByRole('button', { name: 'Create' })).toBeDisabled();
   });
 
-  test('TC-DS1-007: duplicate program name on create (observed: allowed)', async ({ page }) => {
+  test('TC-DS1-007: duplicate program name on create (observed: allowed)', async ({
+    page,
+    trackProgram,
+  }) => {
     const programName = uniqueName('Web Development 2026');
-    await createProgram(page, programName, 'Original program');
+    await createProgram(page, trackProgram, programName, 'Original program');
 
     const dialog = await openNewProgramModal(page);
     await dialog.getByLabel('Program Name').fill(programName);
     await dialog.getByLabel('Description').fill('Another description for duplicate test');
-    await dialog.getByRole('button', { name: 'Create' }).click();
+    await submitCreateAndTrack(page, trackProgram, async () => {
+      await dialog.getByRole('button', { name: 'Create' }).click();
+    });
     await expect(dialog).toBeHidden({ timeout: 10000 });
 
     // Observed: duplicate names are allowed on create (diverges from test plan)
@@ -163,15 +169,18 @@ test.describe('Edge Cases', () => {
     await expect(dialog.getByRole('button', { name: 'Create' })).toBeDisabled();
   });
 
-  test('TC-DS1-012: program name at maximum allowed length', async ({ page }) => {
+  test('TC-DS1-012: program name at maximum allowed length', async ({ page, trackProgram }) => {
     const suffix = String(Date.now()).slice(-10);
     const programName = `${'A'.repeat(PROGRAM_NAME_MAX - suffix.length - 1)} ${suffix}`;
 
-    await createProgram(page, programName, 'Boundary test for max-length program name');
+    await createProgram(page, trackProgram, programName, 'Boundary test for max-length program name');
     await expect(programRow(page, programName)).toBeVisible();
   });
 
-  test('TC-DS1-013: program name exceeding 255 characters is accepted on create', async ({ page }) => {
+  test('TC-DS1-013: program name exceeding 255 characters is accepted on create', async ({
+    page,
+    trackProgram,
+  }) => {
     const overMaxName = 'B'.repeat(PROGRAM_NAME_MAX + 1);
     const dialog = await openNewProgramModal(page);
     await dialog.getByLabel('Program Name').fill(overMaxName);
@@ -179,27 +188,34 @@ test.describe('Edge Cases', () => {
 
     // Live validation: 256-char names are accepted (no max-length enforcement on create)
     await expect(dialog.getByRole('button', { name: 'Create' })).toBeEnabled();
-    await dialog.getByRole('button', { name: 'Create' }).click();
+    await submitCreateAndTrack(page, trackProgram, async () => {
+      await dialog.getByRole('button', { name: 'Create' }).click();
+    });
     await expect(dialog).toBeHidden({ timeout: 10000 });
     await expect(programRow(page, overMaxName).first()).toBeVisible();
   });
 
-  test('TC-DS1-014: description at maximum allowed length', async ({ page }) => {
+  test('TC-DS1-014: description at maximum allowed length', async ({ page, trackProgram }) => {
     const programName = uniqueName('Long Description Boundary Test');
     const maxDescription = `D${Date.now()}${'D'.repeat(DESCRIPTION_MAX - 20)}`;
 
-    await createProgram(page, programName, maxDescription);
+    await createProgram(page, trackProgram, programName, maxDescription);
     await expect(programRow(page, programName)).toBeVisible();
   });
 
-  test('TC-DS1-015: leading and trailing whitespace on create (observed: not trimmed)', async ({ page }) => {
+  test('TC-DS1-015: leading and trailing whitespace on create (observed: not trimmed)', async ({
+    page,
+    trackProgram,
+  }) => {
     const trimmedName = uniqueName('Mobile Development 2026');
     const paddedName = `  ${trimmedName}  `;
 
     const dialog = await openNewProgramModal(page);
     await dialog.getByLabel('Program Name').fill(paddedName);
     await dialog.getByLabel('Description').fill('Trim behavior test');
-    await dialog.getByRole('button', { name: 'Create' }).click();
+    await submitCreateAndTrack(page, trackProgram, async () => {
+      await dialog.getByRole('button', { name: 'Create' }).click();
+    });
 
     await expect(dialog).toBeHidden({ timeout: 10000 });
 
@@ -207,23 +223,32 @@ test.describe('Edge Cases', () => {
     await expect(programRow(page, paddedName)).toBeVisible();
   });
 
-  test('TC-DS1-016: unicode and extended special characters in program name', async ({ page }) => {
+  test('TC-DS1-016: unicode and extended special characters in program name', async ({
+    page,
+    trackProgram,
+  }) => {
     const programName = uniqueName('プログラム — École №1 (2026)');
-    await createProgram(page, programName, 'Unicode and symbol boundary test');
+    await createProgram(page, trackProgram, programName, 'Unicode and symbol boundary test');
   });
 
-  test('TC-DS1-017: double-click create may create duplicate programs (observed)', async ({ page }) => {
+  test('TC-DS1-017: double-click create may create duplicate programs (observed)', async ({
+    page,
+    trackProgram,
+  }) => {
     const programName = uniqueName('Cybersecurity 2026');
 
     const dialog = await openNewProgramModal(page);
     await dialog.getByLabel('Program Name').fill(programName);
     await dialog.getByLabel('Description').fill('Security fundamentals program');
-    await dialog.getByRole('button', { name: 'Create' }).dblclick();
+    await trackMultipleCreatesOnSubmit(page, trackProgram, 2, async () => {
+      await dialog.getByRole('button', { name: 'Create' }).dblclick();
+    });
 
     await expect(dialog).toBeHidden({ timeout: 10000 });
 
     // Live validation: double-click creates 2 programs (no submit debounce)
     expect(await countProgramsNamed(page, programName)).toBeGreaterThanOrEqual(2);
+    await trackProgramsByExactName(trackProgram, programName);
   });
 
   test('TC-DS1-018: create first program when list is empty', async () => {

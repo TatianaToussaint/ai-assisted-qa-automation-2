@@ -2,22 +2,19 @@
  * DS-5: Program list filtering and display
  * Test plan: block-05/DS-5/DS-5_output.md
  */
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/cleanup.fixture';
 import {
   loginAsAdmin,
   navigateToPrograms,
-  createProgram,
-  seedProgram,
   deleteProgram,
   programRow,
   getProgramDescriptionInList,
-  openNewProgramForm,
-  newProgramDialog,
   openEditFormForProgram,
   descriptionField,
   saveEditForm,
   uniqueProgramName,
 } from '../../tests/helpers/didaxis';
+import { createProgram, seedProgram } from '../../tests/helpers/program-create';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -27,9 +24,9 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe('Positive Flows', () => {
-  test('TC-DS5-001: program list displays name and description for each program', async ({ page }) => {
-    const p1 = await seedProgram(page, 'Web Development 2026', 'Full-stack web development program');
-    const p2 = await seedProgram(page, 'Data Science 2026', 'Data analysis and machine learning track');
+  test('TC-DS5-001: program list displays name and description for each program', async ({ page, trackProgram }) => {
+    const p1 = await seedProgram(page, trackProgram, 'Web Development 2026', 'Full-stack web development program');
+    const p2 = await seedProgram(page, trackProgram, 'Data Science 2026', 'Data analysis and machine learning track');
 
     await expect(programRow(page, p1.name)).toBeVisible();
     await expect(programRow(page, p2.name)).toBeVisible();
@@ -37,28 +34,28 @@ test.describe('Positive Flows', () => {
     expect(await getProgramDescriptionInList(page, p2.name)).toBe(p2.description);
   });
 
-  test('TC-DS5-004: list displays a single program correctly', async ({ page }) => {
-    const program = await seedProgram(page, 'Cloud Engineering 2026', 'Multi-cloud engineering track');
+  test('TC-DS5-004: list displays a single program correctly', async ({ page, trackProgram }) => {
+    const program = await seedProgram(page, trackProgram, 'Cloud Engineering 2026', 'Multi-cloud engineering track');
     await expect(programRow(page, program.name)).toBeVisible();
     expect(await getProgramDescriptionInList(page, program.name)).toBe(program.description);
   });
 
-  test('TC-DS5-005: list refreshes after creating a new program', async ({ page }) => {
+  test('TC-DS5-005: list refreshes after creating a new program', async ({ page, trackProgram }) => {
     const name = uniqueProgramName('DevOps Engineering');
-    await createProgram(page, name, 'CI/CD and infrastructure');
+    await createProgram(page, trackProgram, name, 'CI/CD and infrastructure');
     await expect(programRow(page, name)).toBeVisible();
   });
 
-  test('TC-DS5-008: program with special characters displays correctly in list', async ({ page }) => {
+  test('TC-DS5-008: program with special characters displays correctly in list', async ({ page, trackProgram }) => {
     const name = uniqueProgramName('Informatique & IA - Niveau 2');
-    await createProgram(page, name, 'Advanced informatics program');
+    await createProgram(page, trackProgram, name, 'Advanced informatics program');
     await expect(programRow(page, name)).toBeVisible();
     expect(await getProgramDescriptionInList(page, name)).toBe('Advanced informatics program');
   });
 
-  test('TC-DS5-009: program with empty description displays appropriately', async ({ page }) => {
+  test('TC-DS5-009: program with empty description displays appropriately', async ({ page, trackProgram }) => {
     const name = uniqueProgramName('Ethics in AI systems');
-    await createProgram(page, name, '');
+    await createProgram(page, trackProgram, name, '');
     await expect(programRow(page, name)).toBeVisible();
     expect(await getProgramDescriptionInList(page, name)).toBe('');
   });
@@ -71,8 +68,8 @@ test.describe('Positive Flows', () => {
 });
 
 test.describe('Edge Cases', () => {
-  test('TC-DS5-006: list reflects edited description', async ({ page }) => {
-    const program = await seedProgram(page, 'Cybersecurity 2026', 'Security fundamentals track');
+  test('TC-DS5-006: list reflects edited description', async ({ page, trackProgram }) => {
+    const program = await seedProgram(page, trackProgram, 'Cybersecurity 2026', 'Security fundamentals track');
     const updated = 'Updated security fundamentals track';
 
     await openEditFormForProgram(page, program.name);
@@ -82,14 +79,13 @@ test.describe('Edge Cases', () => {
     expect(await getProgramDescriptionInList(page, program.name)).toBe(updated);
   });
 
-  test('TC-DS5-007: list refreshes after deleting a program', async ({ page }) => {
-    const program = await seedProgram(page, 'Test Program', 'list delete refresh');
+  test('TC-DS5-007: list refreshes after deleting a program', async ({ page, trackProgram }) => {
+    const program = await seedProgram(page, trackProgram, 'Test Program', 'list delete refresh');
     await deleteProgram(page, program.name);
     await expect(programRow(page, program.name)).toHaveCount(0);
   });
 
   test('TC-DS5-002: empty state indicators (partial — shared test env)', async ({ page }) => {
-    // Full empty-state verification requires an isolated tenant; assert create affordance is always present.
     await expect(page.getByRole('button', { name: '+ New Program' })).toBeVisible();
     const body = await page.locator('body').textContent();
     expect(body).toMatch(/program/i);

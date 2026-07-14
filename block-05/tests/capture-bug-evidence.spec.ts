@@ -1,6 +1,8 @@
 /**
  * Captures screenshots for individual Jira bug reports.
  * Run: npx playwright test block-05/tests/capture-bug-evidence.spec.ts --project=chromium
+ *
+ * cleanup-intentionally-skipped: leaves programs in Didaxis for manual Jira evidence review
  */
 import { test, expect } from '@playwright/test';
 import fs from 'fs';
