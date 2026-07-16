@@ -4,8 +4,7 @@
  */
 import { test, expect } from '@playwright/test';
 import {
-  loginAsAdmin,
-  navigateToPrograms,
+  goToPrograms,
   seedProgram,
   openEditFormForProgram,
   programNameField,
@@ -18,8 +17,7 @@ test.describe.configure({ mode: 'serial' });
 
 test.describe('DS-2: Edit existing program details', () => {
   test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
-    await navigateToPrograms(page);
+    await goToPrograms(page);
   });
 
   test('SKILL-SMOKE: duplicate rename on edit should be rejected per DS-3', async ({ page }) => {
