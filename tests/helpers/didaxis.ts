@@ -12,6 +12,17 @@ export function uniqueProgramName(base: string): string {
   return `${base} ${Date.now()}`;
 }
 
+/** Path to the auth file written by tests/auth.setup.ts (matches playwright.config.ts). */
+export const authStorageState = 'playwright/.auth/user.json';
+
+/** Clears inherited project storageState so a test starts logged out. */
+export const emptyStorageState = { cookies: [] as [], origins: [] as [] };
+
+export async function goToPrograms(page: Page): Promise<void> {
+  await page.goto('/programs', { waitUntil: 'domcontentloaded' });
+  await expect(page.getByRole('heading', { name: 'Programs', level: 2 })).toBeVisible();
+}
+
 export async function loginAsAdmin(page: Page): Promise<void> {
   const url = requireEnv('DIDAXIS_URL');
   const email = requireEnv('DIDAXIS_EMAIL');

@@ -8,8 +8,7 @@ import { test, expect } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 import {
-  loginAsAdmin,
-  navigateToPrograms,
+  goToPrograms,
   seedProgram,
   openNewProgramForm,
   openEditFormForProgram,
@@ -33,8 +32,7 @@ test.beforeAll(() => {
 });
 
 test.beforeEach(async ({ page }) => {
-  await loginAsAdmin(page);
-  await navigateToPrograms(page);
+  await goToPrograms(page);
 });
 
 test('BUG-DS3-duplicate-on-create', async ({ page }) => {

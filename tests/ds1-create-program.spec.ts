@@ -2,8 +2,8 @@
  * DS-1: Create new academic program
  * Test plan: Test Cases/DS-1/DS-1_output.md
  */
-import { test, expect, Page, trackProgramsByExactName } from '../fixtures/cleanup.fixture';
-import { programRow, countProgramsNamed } from './helpers/didaxis';
+import { test, expect, trackProgramsByExactName } from '../fixtures/cleanup.fixture';
+import { goToPrograms, programRow, countProgramsNamed } from './helpers/didaxis';
 import {
   createProgram,
   openNewProgramModal,
@@ -14,33 +14,11 @@ import {
 const PROGRAM_NAME_MAX = 255;
 const DESCRIPTION_MAX = 1000;
 
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
-  }
-  return value;
-}
-
 function uniqueName(base: string): string {
   return `${base} ${Date.now()}`;
 }
 
-async function login(page: Page): Promise<void> {
-  await page.goto('/login', { waitUntil: 'domcontentloaded' });
-  await page.getByLabel('Email').fill(requireEnv('DIDAXIS_EMAIL'));
-  await page.getByLabel('Password').fill(requireEnv('DIDAXIS_PASSWORD'));
-  await page.getByRole('button', { name: 'Sign In' }).click();
-  await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 30000 });
-}
-
-async function goToPrograms(page: Page): Promise<void> {
-  await page.goto('/programs', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByRole('heading', { name: 'Programs', level: 2 })).toBeVisible();
-}
-
 test.beforeEach(async ({ page }) => {
-  await login(page);
   await goToPrograms(page);
 });
 

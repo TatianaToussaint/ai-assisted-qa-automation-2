@@ -4,8 +4,7 @@
  */
 import { test, expect } from '../../fixtures/cleanup.fixture';
 import {
-  loginAsAdmin,
-  navigateToPrograms,
+  goToPrograms,
   deleteProgram,
   cancelDeleteProgram,
   deleteProgramButton,
@@ -18,8 +17,7 @@ import { seedProgram } from '../../tests/helpers/program-create';
 test.describe.configure({ mode: 'serial' });
 
 test.beforeEach(async ({ page }) => {
-  await loginAsAdmin(page);
-  await navigateToPrograms(page);
+  await goToPrograms(page);
 });
 
 test.describe('Positive Flows', () => {

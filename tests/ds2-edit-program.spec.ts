@@ -5,7 +5,8 @@
  */
 import { test, expect } from '../fixtures/cleanup.fixture';
 import {
-  loginAsAdmin,
+  authStorageState,
+  goToPrograms,
   navigateToPrograms,
   openEditFormForProgram,
   programNameField,
@@ -26,8 +27,7 @@ import { createProgram, seedProgram } from './helpers/program-create';
 test.describe.configure({ mode: 'serial' });
 
 test.beforeEach(async ({ page }) => {
-  await loginAsAdmin(page);
-  await navigateToPrograms(page);
+  await goToPrograms(page);
 });
 
 test.describe('Positive Flows', () => {
@@ -256,17 +256,15 @@ test.describe('Edge Cases', () => {
     const programName = `Web Development 2026 ${suffix}`;
     const description = 'Full-stack web development program';
 
-    const contextA = await browser.newContext();
-    const contextB = await browser.newContext();
+    const contextA = await browser.newContext({ storageState: authStorageState });
+    const contextB = await browser.newContext({ storageState: authStorageState });
     const pageA = await contextA.newPage();
     const pageB = await contextB.newPage();
 
-    await loginAsAdmin(pageA);
-    await navigateToPrograms(pageA);
+    await goToPrograms(pageA);
     await createProgram(pageA, trackProgram, programName, description);
 
-    await loginAsAdmin(pageB);
-    await navigateToPrograms(pageB);
+    await goToPrograms(pageB);
 
     await openEditFormForProgram(pageA, programName);
     await openEditFormForProgram(pageB, programName);

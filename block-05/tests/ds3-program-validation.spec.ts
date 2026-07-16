@@ -4,8 +4,7 @@
  */
 import { test, expect } from '../../fixtures/cleanup.fixture';
 import {
-  loginAsAdmin,
-  navigateToPrograms,
+  goToPrograms,
   openNewProgramForm,
   programNameField,
   descriptionField,
@@ -20,8 +19,7 @@ import { createProgram, seedProgram, submitCreateAndTrack } from '../../tests/he
 test.describe.configure({ mode: 'serial' });
 
 test.beforeEach(async ({ page }) => {
-  await loginAsAdmin(page);
-  await navigateToPrograms(page);
+  await goToPrograms(page);
 });
 
 test.describe('Positive Flows', () => {
