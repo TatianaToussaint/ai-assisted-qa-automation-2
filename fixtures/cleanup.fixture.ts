@@ -3,6 +3,7 @@ import { test as base, expect } from '@playwright/test';
 export type TrackProgram = (uuid: string) => void;
 
 let cachedAuthToken: string | null = null;
+let envTokenRejected = false;
 
 function apiBaseUrl(): string {
   const url = process.env.DIDAXIS_URL;
@@ -27,16 +28,7 @@ function extractToken(payload: unknown): string | undefined {
   return candidates.find((value): value is string => typeof value === 'string' && value.length > 0);
 }
 
-async function getAuthToken(): Promise<string> {
-  const envToken = process.env.DIDAXIS_API_TOKEN?.trim();
-  if (envToken) {
-    return envToken;
-  }
-
-  if (cachedAuthToken) {
-    return cachedAuthToken;
-  }
-
+async function loginForToken(): Promise<string> {
   const email = process.env.DIDAXIS_EMAIL;
   const password = process.env.DIDAXIS_PASSWORD;
   if (!email || !password) {
@@ -63,11 +55,51 @@ async function getAuthToken(): Promise<string> {
   return token;
 }
 
-export async function fetchProgramsFromApi(): Promise<Array<{ id: string; name: string }>> {
-  const token = await getAuthToken();
-  const response = await fetch(`${apiBaseUrl()}/api/programs`, {
-    headers: { Authorization: `Bearer ${token}` },
+async function getAuthToken(options?: { preferLogin?: boolean }): Promise<string> {
+  if (!options?.preferLogin && !envTokenRejected) {
+    const envToken = process.env.DIDAXIS_API_TOKEN?.trim();
+    if (envToken) {
+      return envToken;
+    }
+  }
+
+  if (cachedAuthToken) {
+    return cachedAuthToken;
+  }
+
+  return loginForToken();
+}
+
+async function authorizedFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  let token = await getAuthToken();
+  let response = await fetch(`${apiBaseUrl()}${path}`, {
+    ...init,
+    headers: {
+      ...init.headers,
+      Authorization: `Bearer ${token}`,
+    },
   });
+
+  if (response.status === 401) {
+    cachedAuthToken = null;
+    if (!envTokenRejected && process.env.DIDAXIS_API_TOKEN?.trim()) {
+      envTokenRejected = true;
+    }
+    token = await getAuthToken({ preferLogin: true });
+    response = await fetch(`${apiBaseUrl()}${path}`, {
+      ...init,
+      headers: {
+        ...init.headers,
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  return response;
+}
+
+export async function fetchProgramsFromApi(): Promise<Array<{ id: string; name: string }>> {
+  const response = await authorizedFetch('/api/programs');
   if (!response.ok) {
     throw new Error(`GET /api/programs failed with status ${response.status}`);
   }
@@ -88,11 +120,7 @@ export async function trackProgramsByExactName(
 }
 
 export async function deleteProgramByUuid(uuid: string): Promise<void> {
-  const token = await getAuthToken();
-  const response = await fetch(`${apiBaseUrl()}/api/programs/${uuid}`, {
-    method: 'DELETE',
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const response = await authorizedFetch(`/api/programs/${uuid}`, { method: 'DELETE' });
 
   if (process.env.CLEANUP_DEBUG) {
     console.log(`[cleanup] DELETE /api/programs/${uuid} -> ${response.status}`);
