@@ -177,7 +177,7 @@ Requires in `.env`:
 
 Verify upload succeeded (script exits 0). If it fails with HTTP 401, the user needs a Jira API token — password auth is not supported by Jira Cloud REST API.
 
-**Fallback:** If `scripts/jira-attach-screenshots.mjs` is unavailable, use `block-05/scripts/upload-jira-attachments.mjs` with `ATLASSIAN_BASE_URL`, `ATLASSIAN_EMAIL`, and `ATLASSIAN_API_TOKEN` from `.env`.
+**Fallback:** If `scripts/jira-attach-screenshots.mjs` is unavailable, use `scripts/upload-jira-attachments.mjs` with `ATLASSIAN_BASE_URL`, `ATLASSIAN_EMAIL`, and `ATLASSIAN_API_TOKEN` from `.env`.
 
 ## Playwright defaults for this project
 

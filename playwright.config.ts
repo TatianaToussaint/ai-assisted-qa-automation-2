@@ -11,9 +11,17 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
+const didaxisApplicationSpecs = [
+  'tests/ds1-create-program.spec.ts',
+  'tests/ds2-edit-program.spec.ts',
+  'tests/ds3-program-validation.spec.ts',
+  'tests/ds4-delete-program.spec.ts',
+  'tests/ds5-program-list.spec.ts',
+];
+
 export default defineConfig({
   testDir: '.',
-  testMatch: ['tests/**/*.spec.ts', 'TODO_MVC/tests/**/*.spec.ts', 'block-05/tests/**/*.spec.ts'],
+  testMatch: [...didaxisApplicationSpecs, 'tests/auth.setup.ts'],
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -39,10 +47,11 @@ export default defineConfig({
   projects: [
     {
       name: 'setup',
-      testMatch: /.*\.setup\.ts/,
+      testMatch: /auth\.setup\.ts/,
     },
     {
       name: 'chromium',
+      testMatch: didaxisApplicationSpecs,
       use: {
         ...devices['Desktop Chrome'],
         storageState: 'playwright/.auth/user.json',

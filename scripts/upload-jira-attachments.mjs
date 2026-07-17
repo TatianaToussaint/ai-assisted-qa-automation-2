@@ -1,6 +1,6 @@
 /**
  * Upload screenshot attachments to Jira issues.
- * Usage: node block-05/scripts/upload-jira-attachments.mjs DS-164 block-05/screenshots/ds2-duplicate-name-on-edit.png
+ * Usage: node scripts/upload-jira-attachments.mjs DS-164 tests/smoke/evidence/ds2-duplicate-name-on-edit.png
  */
 import dotenv from 'dotenv';
 import fs from 'fs';
@@ -8,7 +8,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, '..', '..', '.env') });
+dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 const [issueKey, ...filePaths] = process.argv.slice(2);
 if (!issueKey || filePaths.length === 0) {
