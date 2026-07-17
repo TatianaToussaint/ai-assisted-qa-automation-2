@@ -17,11 +17,14 @@ const didaxisApplicationSpecs = [
   'tests/ds3-program-validation.spec.ts',
   'tests/ds4-delete-program.spec.ts',
   'tests/ds5-program-list.spec.ts',
+  'tests/programs.a11y.spec.ts',
 ];
+
+const loginSpecs = ['tests/login.smoke.spec.ts'];
 
 export default defineConfig({
   testDir: '.',
-  testMatch: [...didaxisApplicationSpecs, 'tests/auth.setup.ts'],
+  testMatch: [...didaxisApplicationSpecs, ...loginSpecs, 'tests/auth.setup.ts'],
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -57,6 +60,13 @@ export default defineConfig({
         storageState: 'playwright/.auth/user.json',
       },
       dependencies: ['setup'],
+    },
+    {
+      name: 'chromium-logged-out',
+      testMatch: loginSpecs,
+      use: {
+        ...devices['Desktop Chrome'],
+      },
     },
 
     // {

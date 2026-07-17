@@ -44,4 +44,16 @@ export class NewProgramModal {
   async clickClose(): Promise<void> {
     await this.closeButton.click();
   }
+
+  /** Resolves an axe-core `.include()` selector scoped to this dialog. */
+  async axeIncludeSelector(): Promise<string> {
+    return this.dialog.evaluate((element) => {
+      if (element.id) {
+        return `#${CSS.escape(element.id)}`;
+      }
+      const marker = 'data-axe-include';
+      element.setAttribute(marker, 'new-program');
+      return `[${marker}="new-program"]`;
+    });
+  }
 }
