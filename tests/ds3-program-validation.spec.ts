@@ -20,8 +20,6 @@ import { seedProgram, uniqueProgramName } from './helpers/pom-programs';
 
 const PROGRAM_NAME_MAX = 255;
 
-test.describe.configure({ mode: 'serial' });
-
 test.beforeEach(async ({ page }) => {
   const programsPage = new ProgramsPage(page);
   await programsPage.goto();

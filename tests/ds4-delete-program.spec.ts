@@ -8,8 +8,6 @@ import { test, expect } from '../fixtures/cleanup.fixture';
 import { ProgramsPage } from '../pages/ProgramsPage';
 import { seedProgram, uniqueProgramName } from './helpers/pom-programs';
 
-test.describe.configure({ mode: 'serial' });
-
 test.beforeEach(async ({ page }) => {
   const programsPage = new ProgramsPage(page);
   await programsPage.goto();

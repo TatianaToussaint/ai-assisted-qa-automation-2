@@ -83,10 +83,10 @@ export class ProgramsPage {
 
   async getProgramDescriptionInList(programName: string): Promise<string> {
     const row = this.programRow(programName);
-    const cells = row.getByRole('cell');
-    if ((await cells.count()) < 2) {
+    const paragraphs = row.locator('p');
+    if ((await paragraphs.count()) < 2) {
       return '';
     }
-    return (await cells.nth(1).textContent())?.trim() ?? '';
+    return (await paragraphs.nth(1).textContent())?.trim() ?? '';
   }
 }
