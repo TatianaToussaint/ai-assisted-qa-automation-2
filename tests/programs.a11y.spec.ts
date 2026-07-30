@@ -34,6 +34,9 @@ test.describe('Programs accessibility', () => {
     await programsPage.openNewProgramForm();
     await expect(modal.dialog).toBeVisible();
 
+    // `.disableRules()` is only for a documented known false positive, upstream
+    // issue, ticket, or environmental limitation — not to silence real violations
+    // (e.g. color-contrast). Add it here only when such a justification exists.
     const results = await new AxeBuilder({ page })
       .include(await modal.axeIncludeSelector())
       .analyze();

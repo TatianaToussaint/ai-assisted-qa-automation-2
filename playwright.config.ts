@@ -20,7 +20,7 @@ const didaxisApplicationSpecs = [
   'tests/programs.a11y.spec.ts',
 ];
 
-const loginSpecs = ['tests/login.smoke.spec.ts'];
+const loginSpecs = ['tests/login.smoke.spec.ts', 'tests/login.a11y.spec.ts'];
 
 export default defineConfig({
   testDir: '.',

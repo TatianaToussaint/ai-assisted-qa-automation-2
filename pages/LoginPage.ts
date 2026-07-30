@@ -9,12 +9,16 @@ function requireEnv(name: string): string {
 }
 
 export class LoginPage {
+  readonly logo: Locator;
+  readonly tagline: Locator;
   readonly emailField: Locator;
   readonly passwordField: Locator;
   readonly signInButton: Locator;
   readonly programsButton: Locator;
 
   constructor(readonly page: Page) {
+    this.logo = page.getByRole('img', { name: 'Didaxis Studio' });
+    this.tagline = page.getByText('Sign in to your account');
     this.emailField = page.getByLabel('Email');
     this.passwordField = page.getByLabel('Password');
     this.signInButton = page.getByRole('button', { name: 'Sign In' });
