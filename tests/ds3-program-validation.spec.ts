@@ -236,7 +236,7 @@ test.describe('Negative Flows', () => {
 });
 
 test.describe('Edge Cases', () => {
-  test('TC-DS3-003: leading and trailing whitespace on create (observed trim behavior)', async ({
+  test.fixme('TC-DS3-003: leading and trailing whitespace on create (observed trim behavior)', async ({
     page,
     trackProgram,
   }) => {

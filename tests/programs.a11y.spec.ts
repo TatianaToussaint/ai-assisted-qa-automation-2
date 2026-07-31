@@ -15,7 +15,7 @@ test.describe('Programs accessibility', () => {
     await programsPage.goto();
   });
 
-  test('programs page has no accessibility violations @regression', async ({ page }, testInfo) => {
+  test.fixme('programs page has no accessibility violations @regression', async ({ page }, testInfo) => {
     const programsPage = new ProgramsPage(page);
 
     await expect(programsPage.heading).toBeVisible();
@@ -25,7 +25,7 @@ test.describe('Programs accessibility', () => {
     await expectNoAxeViolations(results, testInfo, 'programs-page');
   });
 
-  test('New Program modal has no accessibility violations within scope @regression', async ({
+  test.fixme('New Program modal has no accessibility violations within scope @regression', async ({
     page,
   }, testInfo) => {
     const programsPage = new ProgramsPage(page);

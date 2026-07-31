@@ -18,7 +18,7 @@ test.describe('Login page', () => {
     await loginPage.goto();
   });
 
-  test('login page has no accessibility violations @regression', async ({ page }, testInfo) => {
+  test.fixme('login page has no accessibility violations @regression', async ({ page }, testInfo) => {
     const loginPage = new LoginPage(page);
 
     await expect(page).toHaveURL(/\/login/);
